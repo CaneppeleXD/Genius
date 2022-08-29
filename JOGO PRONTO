@@ -1,0 +1,158 @@
+//https://www.tinkercad.com/things/iOMeJXcukNz?sharecode=t4_4MRbllSyWPtFrBXSKXIB7J90wsegctAVs09LB9Gg
+
+int sequencia[100] = {};
+
+int rodada_atual = 0;
+
+int passo_atual_na_sequencia = 0;
+
+int pinosLeds[4] = {1, 2, 3, 4 };
+
+int pinosBotoes[4] = { 8, 9, 10, 11};
+
+int botao_pressionado = 0;
+
+int perdeu_o_jogo = false;
+
+ 
+
+void setup() {
+
+    for (int i = 0; i <= 3; i++) 
+    {
+        pinMode(pinosLeds[i], OUTPUT);
+    }
+ 
+    for (int i = 0; i <= 3; i++) 
+    {
+        pinMode(pinosBotoes[i], INPUT);
+    }
+
+  // Inicializando o random através de uma leitura da porta analógica.
+  // Esta leitura gera um valor variável entre 0 e 1023.
+  randomSeed(analogRead(0));
+
+}
+ 
+void loop() {
+
+  // Reinicia variaveis ao perder ao jogo
+    if (perdeu_o_jogo) 
+    {
+        int sequencia[100] = {};
+
+        rodada_atual = 0;
+        passo_atual_na_sequencia = 0;
+
+        perdeu_o_jogo = false;
+    }
+ 
+  proximaRodada();
+
+  reproduzirSequencia();
+
+  aguardarJogador();
+
+  delay(1000);
+}
+ 
+
+void proximaRodada() 
+{
+  int numero_sorteado = random(0, 4);
+
+  sequencia[rodada_atual++] = numero_sorteado;
+}
+
+
+void reproduzirSequencia()
+{
+    for (int i = 0; i < rodada_atual; i++) 
+    {
+        digitalWrite(pinosLeds[sequencia[i]], HIGH);
+        delay(500);
+
+        digitalWrite(pinosLeds[sequencia[i]], LOW);
+        delay(100);
+    }
+}
+
+
+void aguardarJogador() 
+{
+    for (int i = 0; i < rodada_atual; i++) 
+    {
+        aguardarJogada();
+
+        verificarJogada();
+
+        if (perdeu_o_jogo)
+        {
+            break;
+        }
+
+        passo_atual_na_sequencia++;
+    }
+
+    passo_atual_na_sequencia = 0;
+}
+
+ 
+void aguardarJogada() 
+{
+  boolean jogada_efetuada = false;
+
+  while (!jogada_efetuada) 
+    {
+
+        for (int i = 0; i <= 3; i++) 
+        {
+
+            if (digitalRead(pinosBotoes[i]) == HIGH) 
+            {
+                botao_pressionado = i;
+
+                digitalWrite(pinosLeds[i], HIGH);
+
+                delay(300);
+
+                digitalWrite(pinosLeds[i], LOW);
+
+                jogada_efetuada = true;
+            }
+        }
+        delay(10);
+    }
+}
+
+ 
+void verificarJogada() 
+{
+  if (sequencia[passo_atual_na_sequencia] != botao_pressionado) 
+  {
+        for (int i = 0; i <= 3; i++) 
+        {
+            digitalWrite(pinosLeds[i], HIGH);
+            delay(200);
+
+            digitalWrite(pinosLeds[i], LOW);
+        }
+
+        for (int i = 0; i <= 3; i++) 
+        {
+            digitalWrite(pinosLeds[0], HIGH);
+            digitalWrite(pinosLeds[1], HIGH);
+            digitalWrite(pinosLeds[2], HIGH);
+            digitalWrite(pinosLeds[3], HIGH);
+            delay(100);
+
+            digitalWrite(pinosLeds[0], LOW);
+            digitalWrite(pinosLeds[1], LOW);
+            digitalWrite(pinosLeds[2], LOW);
+            digitalWrite(pinosLeds[3], LOW);
+            delay(100);
+        }
+        perdeu_o_jogo = true;
+  }
+
+}
