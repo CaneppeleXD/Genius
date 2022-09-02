@@ -46,6 +46,10 @@ void loop()
                     }
                 }
             }
+            if(estado.compareTo("acertou"))
+            {
+                rodando = 0;
+            }
         }
     }
 }
